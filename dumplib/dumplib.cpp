@@ -56,15 +56,21 @@ std::wstring GetAgentDumpPath()
 
 bool InitDumplib()
 {
-	//std::wstring dumpPath = GetAgentDumpPath();
-	eh = new google_breakpad::ExceptionHandler(
-		L"D:\\", //const wstring& dump_path
-		NULL, //FilterCallback filter
-		NULL, //MinidumpCallback callback
-		NULL, //void* callback_context
-		google_breakpad::ExceptionHandler::HANDLER_ALL, //int handler_types
-		MiniDumpNormal, //MINIDUMP_TYPE dump_type
-		(const wchar_t*)NULL, //const wchar_t* pipe_name
-		NULL //const CustomClientInfo* custom_info
-	);
+	std::wstring dumpPath = GetAgentDumpPath();
+	LPCWSTR dump_path = dumpPath.c_str();
+	if (PathIsDirectory(dump_path))
+	{
+		eh = new google_breakpad::ExceptionHandler(
+			dumpPath.c_str(), //const wstring& dump_path
+			NULL, //FilterCallback filter
+			NULL, //MinidumpCallback callback
+			NULL, //void* callback_context
+			google_breakpad::ExceptionHandler::HANDLER_ALL, //int handler_types
+			MiniDumpNormal, //MINIDUMP_TYPE dump_type
+			(const wchar_t*)NULL, //const wchar_t* pipe_name
+			NULL //const CustomClientInfo* custom_info
+		);
+		return true;
+	}
+	return false;
 }
