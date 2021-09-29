@@ -14,6 +14,8 @@ using namespace std;
 #include "dumplib.h"
 #pragma comment (lib,"dumplib.lib") 
 
+#include "clear_dump.h"
+
 void CrashFunction()
 {
 	int* a = (int*)(NULL);
@@ -23,9 +25,12 @@ void CrashFunction()
 int main()
 {
 	printf("hello\n");
-	InitDumplib();
-	CrashFunction();
-	//CleanDumpFolder();
-	printf("did not crash?\n");
+
+	//InitDumplib();
+	//CrashFunction();
+	//printf("did not crash?\n");
+
+	ClearDumpFolder();
+
 	getchar();
 }

@@ -5,8 +5,9 @@
 #include <algorithm>
 #include <Windows.h>
 #include <shlwapi.h>
+#include "clear_dump.h"
+#include "easylog.h"
 
-#define LOG_INFO printf
 
 using namespace std;
 
@@ -44,22 +45,26 @@ bool LatestSort(WIN32_FIND_DATA a, WIN32_FIND_DATA b)
 	return (u1.QuadPart > u2.QuadPart);
 }
 
-// 清理dump目录，只保留最近的num个dump文件
-void CleanDumpFolder()
+// 清理dump目录，只保留最近的n个dump文件
+void ClearDumpFolder()
 {
+	int DUMP_NUMS = 5;
 	// check folder
-	std::wstring spath(TEXT("D:\\dump"));
+	std::wstring spath = L"D:\\dump";
 	if (!PathIsDirectory(spath.c_str()))
 	{
-		printf("invalid path");
-		return;
+		if (CreateDirectory(spath.c_str(), NULL))
+		{
+			printf("create dump folder failed, GLE=%d", GetLastError());
+			return;
+		}
 	}
-	// traverse minidump folder
+	// traverse folder
 	vector<WIN32_FIND_DATA> myvector;
 	TCHAR sp[MAX_PATH];
 	SYSTEMTIME lt;
 	GetSystemTime(&lt);
-	LOG_INFO("The utc time is: %02d-%02d-%02d %02d:%02d:%02d\n", lt.wYear, lt.wMonth, lt.wDay, lt.wHour, lt.wMinute, lt.wSecond);
+	LOG_INFO("The UTC time is: %02d-%02d-%02d %02d:%02d:%02d\n", lt.wYear, lt.wMonth, lt.wDay, lt.wHour, lt.wMinute, lt.wSecond);
 	WIN32_FIND_DATA wfd;
 	HANDLE hFind;
 	wstring dirpath = spath + L"\\*.*";
@@ -80,27 +85,34 @@ void CleanDumpFolder()
 			continue;
 		}
 		int diff = DiffSecs(wfd.ftLastWriteTime, lt);
-		LOG_INFO("dump: %s %u %uB %ds\n", Utility::UnicodeToAnsi(wfd.cFileName).c_str(), wfd.dwFileAttributes, wfd.nFileSizeLow, diff);
-		// Within 7 days && No more than 10 MB
-		if (diff < 7 * 24 * 60 * 60 && wfd.nFileSizeHigh == 0 && wfd.nFileSizeLow < 10 * 1024 * 1024)
+		LOG_INFO("dump: %s %u %uB %ds", Utility::UnicodeToAnsi(wfd.cFileName).c_str(), wfd.dwFileAttributes, wfd.nFileSizeLow, diff);
+		// Within 7 days && No more than 20 MB
+		if (diff < 7 * 24 * 60 * 60 && wfd.nFileSizeHigh == 0 && wfd.nFileSizeLow < 20 * 1024 * 1024)
 		{
 			myvector.push_back(wfd);
 		}
+		else
+		{
+			swprintf_s(sp, MAX_PATH, L"%s\\%s", spath.c_str(), wfd.cFileName);
+			LOG_INFO("  delete %s", Utility::UnicodeToAnsi(wfd.cFileName).c_str());
+			DeleteFile(sp);
+		}
 	} while (FindNextFile(hFind, &wfd));
 	FindClose(hFind);
+	LOG_INFO("Within 7 days && No more than 20 MB: [%d]", myvector.size());
 	std::sort(myvector.begin(), myvector.end(), LatestSort);
-	// keep latest 3 dumps
+	// keep latest dump
 	int count = 0;
 	for (std::vector<WIN32_FIND_DATA>::iterator it = myvector.begin(); it != myvector.end(); ++it)
 	{
-		if (++count > 3)
+		if (++count > DUMP_NUMS)
 		{
 			swprintf_s(sp, MAX_PATH, L"%s\\%s", spath.c_str(), it->cFileName);
-			LOG_INFO("delete %d %s\n", count, Utility::UnicodeToAnsi(it->cFileName).c_str());
+			LOG_INFO("delete %d %s", count, Utility::UnicodeToAnsi(it->cFileName).c_str());
 			DeleteFile(sp);
 		}
 		else {
-			LOG_INFO("keep %d %s\n", count, Utility::UnicodeToAnsi(it->cFileName).c_str());
+			LOG_INFO("keep %d %s", count, Utility::UnicodeToAnsi(it->cFileName).c_str());
 		}
 	}
 }

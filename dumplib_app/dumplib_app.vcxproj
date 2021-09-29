@@ -21,6 +21,11 @@
   <ItemGroup>
     <ClCompile Include="clear_dump.cpp" />
     <ClCompile Include="dumplib_app.cpp" />
+    <ClCompile Include="easylog.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="clear_dump.h" />
+    <ClInclude Include="easylog.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -21,5 +21,16 @@
     <ClCompile Include="clear_dump.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="easylog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="clear_dump.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="easylog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
