@@ -11,12 +11,12 @@ https://blog.csdn.net/zyhse/article/details/112577340
 
 1.安装python2.7 https://www.python.org/downloads/release/python-2718/
 
-2.git clone -b master https://github.com/adblockplus/gyp.git gyp-master
+2.git clone -b master https://github.com/chromium/gyp.git chromium-gyp
 
-3.安装gyp
+3.用python安装gyp
 ```bash
 > gyp -h //查看帮助
-> cd gyp-master
+> cd chromium-gyp
 > python setup.py install
 ```
 
